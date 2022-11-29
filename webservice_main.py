@@ -4,7 +4,7 @@ import logging
 import re
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 from erdeni_nlp import pymorphy2_lemmas
-import zipfile
+from zipfile import ZipFile
 import pymorphy2
 import json
 import pandas as pd
