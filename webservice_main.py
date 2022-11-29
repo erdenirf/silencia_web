@@ -13,6 +13,7 @@ import streamlit as st
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
 import wget
+import os
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
@@ -27,13 +28,20 @@ with open('vocabulary_not_in_model.json', "r", encoding='utf-8') as f:
 morph = pymorphy2.MorphAnalyzer()
 the_keep_stopwords = list(map(lambda x: x.split("_")[0], stopwords_drops.keys()))
 
-#model = gensim.models.KeyedVectors.load_word2vec_format("220/model.bin", binary=True)
-model_url = 'http://vectors.nlpl.eu/repository/11/180.zip'
-m = wget.download(model_url)
+model_url = 'http://vectors.nlpl.eu/repository/20/220.zip'
 model_file = model_url.split('/')[-1]
-with zipfile.ZipFile(model_file, 'r') as archive:
-    with archive.open("model.bin") as stream:
-        model = gensim.models.KeyedVectors.load_word2vec_format(stream.read(), binary=True)
+folder_name = model_file.split('.')[0]
+
+file_exists = os.path.exists(model_file)
+if not file_exists:
+    m = wget.download(model_url)
+
+folder_exists = os.path.exists(folder_name)
+if not folder_exists:
+    zf = ZipFile(model_file, 'r')
+    zf.extractall(folder_name)
+    zf.close()
+model = gensim.models.KeyedVectors.load_word2vec_format("220/model.bin", binary=True)
 
 
 # Webservice BEGIN
