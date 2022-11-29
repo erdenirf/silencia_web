@@ -14,13 +14,13 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
 
 # Загрузить словарь
-with open('vocabulary.json', "r") as f:
+with open('vocabulary.json', "r", encoding='utf-8') as f:
     vocabulary = json.loads(f.read())
     
-with open('stopwords.json', "r") as f:
+with open('stopwords.json', "r", encoding='utf-8') as f:
     stopwords_drops = json.loads(f.read())
     
-with open('vocabulary_not_in_model.json', "r") as f:
+with open('vocabulary_not_in_model.json', "r", encoding='utf-8') as f:
     not_in_model = json.loads(f.read())
 
 morph = pymorphy2.MorphAnalyzer()
