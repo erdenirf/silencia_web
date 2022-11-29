@@ -148,7 +148,7 @@ if button_translate:
         st.write("\n")
     annots = translater.get_annotations()
     if annots:
-        annotations = annotated_text(annots)
+        annotations = annotated_text(*annots)
         st.write("\n")
 else:
     st.write('Нажмите перевести')
@@ -163,7 +163,7 @@ if button_video:
         st.write("\n")
     annots = translater.get_annotations()
     if annots:
-        annotations = annotated_text(annots)
+        annotations = annotated_text(*annots)
         st.write("\n")
 
     if text:
