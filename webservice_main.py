@@ -135,7 +135,7 @@ if button_video:
         st.write("\n")  
 
     if text:
-        clips = [VideoFileClip(c) for c in ['Source/абрикос.mp4', 'Source/приветствие.mp4', 'Source/абажур.mp4']]
+        clips = [VideoFileClip(c) for c in ['./Source/абрикос.mp4', './Source/приветствие.mp4', './Source/абажур.mp4']]
         final_clip = concatenate_videoclips(clips)
         final_clip.write_videofile("final.mp4")
         video_file3 = open('final.mp4', 'rb')
