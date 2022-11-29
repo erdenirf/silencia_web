@@ -50,9 +50,8 @@ class Translater:
         self.the_keep_stopwords = the_keep_stopwords
 
     def new_calculation(self, input_text):
-        input_filtered = []
-        output_lemma = []
-        output_similarity = []
+        out_filenames = []
+        output_text = ""
         annotated_args = []
 
         IS_STOPWORD = "stopword"
@@ -66,9 +65,8 @@ class Translater:
             
             stopword_filename = stopwords_drops.get(lemma)
             if stopword_filename:
-                input_filtered.append(word)
-                output_lemma.append(lemma)
-                output_similarity.append(IS_STOPWORD)
+                out_filenames.append(stopword_filename)
+                output_text += lemma.split("_")[0] + " "
                 annotated_args.append(" " + word + " ")
                 continue
             
@@ -76,10 +74,9 @@ class Translater:
             similarity_word = None
             for iterated_word in vocabulary.keys():
                 if lemma == iterated_word:
-                    #filename = vocabulary.get(lemma)
-                    input_filtered.append(word)
-                    output_lemma.append(lemma)
-                    output_similarity.append(IS_FOUND)
+                    filename = vocabulary.get(lemma)
+                    out_filenames.append(filename)
+                    output_text += lemma.split("_")[0] + " "
                     annotated_args.append(" " + word + " ")
                     similarity_word = None
                     break
@@ -94,14 +91,14 @@ class Translater:
                         similarity_word = iterated_word
             
             if similarity_word:
-                #filename = vocabulary.get(similarity_word)
-                input_filtered.append(word)
-                output_lemma.append(similarity_word)
-                output_similarity.append(similarity_max)
+                filename = vocabulary.get(similarity_word)
+                out_filenames.append(filename)
+                output_text += lemma.split("_")[0] + " "
                 annotated_args.append((word, similarity_word.split("_")[0] + " " + str(round(similarity_max, 2))))
 
-        st.session_state.text_output = " ".join(list(map(lambda x: x.split("_")[0], output_lemma)))
+        st.session_state.text_output = output_text
         st.session_state.annotations = annotated_args
+        st.session_state.filenames = out_filenames
         return None
 
     def get_output(self):
@@ -112,6 +109,11 @@ class Translater:
     def get_annotations(self):
         if "annotations" in st.session_state:
             return st.session_state.annotations
+        return None
+
+    def get_filenames(self):
+        if "filenames" in st.session_state:
+            return st.session_state.filenames
         return None
 
 translater = Translater()
