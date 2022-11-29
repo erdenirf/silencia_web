@@ -137,7 +137,7 @@ if button_video:
 
     if text:
 
-        cap = cv2.VideoCapture('Source/абрикос.mp4')
+        cap = cv2.VideoCapture('адрес.mp4')
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
