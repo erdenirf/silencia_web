@@ -14,6 +14,7 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
 import wget
 import os
+import cv2
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
@@ -136,7 +137,7 @@ if button_video:
 
     if text:
 
-        cap = cv2.VideoCapture('https://github.com/erdenirf/media_silencia/blob/main/Source/%D0%B0%D0%B1%D1%80%D0%B8%D0%BA%D0%BE%D1%81.mp4')
+        cap = cv2.VideoCapture('Source/абрикос.mp4')
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
