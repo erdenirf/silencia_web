@@ -1,0 +1,6 @@
+smart-open
+scipy
+gensim
+pymorphy2
+moviepy
+htbuilder
