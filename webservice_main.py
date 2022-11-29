@@ -12,7 +12,7 @@ pd.set_option('display.max_rows', None)
 import streamlit as st
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
-import zipfile
+import wget
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
