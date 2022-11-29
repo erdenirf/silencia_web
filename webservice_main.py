@@ -1,14 +1,11 @@
 import gensim
-import sys
 import logging
 import re
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-from erdeni_nlp import pymorphy2_lemmas
+from erdeni_nlp import DataCleaning, Preprocessing, Tokenization, Lemmatization
 from zipfile import ZipFile
 import pymorphy2
 import json
-import pandas as pd
-pd.set_option('display.max_rows', None)
 import streamlit as st
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
@@ -18,16 +15,16 @@ import os
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
     vocabulary = json.loads(f.read())
-    
-with open('stopwords.json', "r", encoding='utf-8') as f:
-    stopwords_drops = json.loads(f.read())
-    
 with open('vocabulary_not_in_model.json', "r", encoding='utf-8') as f:
     not_in_model = json.loads(f.read())
-
-morph = pymorphy2.MorphAnalyzer()
+with open('stopwords.json', "r", encoding='utf-8') as f:
+    stopwords_drops = json.loads(f.read())
 the_keep_stopwords = list(map(lambda x: x.split("_")[0], stopwords_drops.keys()))
+    
+# Инстанс лемматизатора
+morph = pymorphy2.MorphAnalyzer()
 
+# Инстанс модели word2vec
 model_url = 'http://vectors.nlpl.eu/repository/20/220.zip'
 model_file = model_url.split('/')[-1]
 folder_name = model_file.split('.')[0]
@@ -53,8 +50,50 @@ class Translater:
         self.the_keep_stopwords = the_keep_stopwords
 
     def calc(self, input_text):
-        output = pymorphy2_lemmas(self.morph, text=input_text, drop_stopword=True, keep_stopwords=self.the_keep_stopwords)
-        st.session_state.text_output = " ".join(output)
+        input_filtered = []
+        output_lemma = []
+        output_similarity = []
+
+        for word in Tokenization(Preprocessing(DataCleaning(input_text))):
+            code, lemma = Lemmatization(self.morph, word, keep_pos=True, convert_upos=True, 
+                                        drop_stopword=True, keep_stopwords=self.the_keep_stopwords)
+            if not code:
+                continue
+            
+            stopword_filename = stopwords_drops.get(lemma)
+            if stopword_filename:
+                input_filtered.append(word)
+                output_lemma.append(lemma)
+                output_similarity.append("stopword")
+                continue
+            
+            similarity_max = 0
+            similarity_word = None
+            for iterated_word in vocabulary.keys():
+                if lemma == iterated_word:
+                    #filename = vocabulary.get(lemma)
+                    input_filtered.append(word)
+                    output_lemma.append(lemma)
+                    output_similarity.append("found")
+                    similarity_word = None
+                    break
+                    
+                if iterated_word in not_in_model:
+                    continue
+
+                if lemma in model:
+                    percent = model.similarity(lemma, iterated_word)
+                    if percent > similarity_max:
+                        similarity_max = percent
+                        similarity_word = iterated_word
+            
+            if similarity_word:
+                #filename = vocabulary.get(similarity_word)
+                input_filtered.append(word)
+                output_lemma.append(similarity_word)
+                output_similarity.append(similarity_max)
+
+        st.session_state.text_output = " ".join(list(map(lambda x: x.split("_")[0], output_lemma)))
         return st.session_state.text_output
 
     def get_output(self):
@@ -109,7 +148,6 @@ if button_translate:
         st.write("\n")    
 else:
     st.write('Нажмите перевести')
-
 
 
 button_video = st.button('Запустить видео')
