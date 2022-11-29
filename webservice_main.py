@@ -143,7 +143,9 @@ annotations = st.empty()
 button_translate = st.button('Перевести')
 if button_translate:
     
-    translater.new_calculation(text_input)
+    with st.spinner('Вычисляем матрицы векторов...'):
+        translater.new_calculation(text_input)
+    st.success('Синонимы найдены успешно.')
     output_text = translater.get_output()
     if output_text:
         text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA)
