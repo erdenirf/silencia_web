@@ -98,7 +98,7 @@ class Translater:
                 input_filtered.append(word)
                 output_lemma.append(similarity_word)
                 output_similarity.append(similarity_max)
-                annotated_args.append((word, similarity_word + " " + str(similarity_max)))
+                annotated_args.append((word, similarity_word.split("_")[0] + " " + str(round(similarity_max, 2))))
 
         st.session_state.text_output = " ".join(list(map(lambda x: x.split("_")[0], output_lemma)))
         st.session_state.annotations = annotated_args
