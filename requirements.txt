@@ -5,3 +5,4 @@ pymorphy2
 moviepy
 htbuilder
 wget
+opencv-python
