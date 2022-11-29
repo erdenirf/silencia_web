@@ -16,25 +16,23 @@ import wget
 import os
 
 # Загрузить словарь
+PATH = os.path.dirname(os.path.realpath(__file__))+'/'
 
-delim = "/"
-local_path = delim.join(sys.argv[0].split(delim)[:-1])+delim
-
-with open(local_path + 'vocabulary.json', "r", encoding='utf-8') as f:
+with open(PATH + 'vocabulary.json', "r", encoding='utf-8') as f:
     vocabulary = json.loads(f.read())
     
-with open(local_path + 'stopwords.json', "r", encoding='utf-8') as f:
+with open(PATH + 'stopwords.json', "r", encoding='utf-8') as f:
     stopwords_drops = json.loads(f.read())
     
-with open(local_path + 'vocabulary_not_in_model.json', "r", encoding='utf-8') as f:
+with open(PATH + 'vocabulary_not_in_model.json', "r", encoding='utf-8') as f:
     not_in_model = json.loads(f.read())
 
 morph = pymorphy2.MorphAnalyzer()
 the_keep_stopwords = list(map(lambda x: x.split("_")[0], stopwords_drops.keys()))
 
 model_url = 'http://vectors.nlpl.eu/repository/20/220.zip'
-model_file = model_url.split('/')[-1]
-folder_name = model_file.split('.')[0]
+model_file = PATH + model_url.split('/')[-1]
+folder_name = ".".join(model_file.split('.')[:-1])
 
 file_exists = os.path.exists(model_file)
 if not file_exists:
@@ -43,7 +41,7 @@ if not file_exists:
 folder_exists = os.path.exists(folder_name)
 if not folder_exists:
     zf = ZipFile(model_file, 'r')
-    zf.extractall(folder_name)
+    zf.extractall(model_url.split('/')[-1].split('.')[0])
     zf.close()
 model = gensim.models.KeyedVectors.load_word2vec_format("220/model.bin", binary=True)
 
@@ -139,10 +137,10 @@ if button_video:
         st.write("\n")  
 
     if text:
-        clips = [VideoFileClip(c) for c in ['./Source/абрикос.mp4', './Source/приветствие.mp4', './Source/абажур.mp4']]
+        clips = [VideoFileClip(c) for c in [PATH + 'Source/абрикос.mp4', PATH + 'Source/приветствие.mp4', PATH + 'Source/абажур.mp4']]
         final_clip = concatenate_videoclips(clips)
-        final_clip.write_videofile("final.mp4")
-        video_file3 = open('final.mp4', 'rb')
+        final_clip.write_videofile(PATH + "final.mp4")
+        video_file3 = open(PATH + 'final.mp4', 'rb')
         video_bytes3 = video_file3.read()
         st.video(video_bytes3, format="video/mp4")
     else:
