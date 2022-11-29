@@ -69,18 +69,18 @@ class Translater:
                 output_text += lemma.split("_")[0] + " "
                 annotated_args.append(" " + word + " ")
                 continue
+
+            vocabulary_filename = vocabulary.get(lemma)
+            if vocabulary_filename:
+                out_filenames.append(vocabulary_filename)
+                output_text += lemma.split("_")[0] + " "
+                annotated_args.append(" " + word + " ")
+                continue
             
             similarity_max = 0
             similarity_word = None
             for iterated_word in vocabulary.keys():
-                if lemma == iterated_word:
-                    filename = vocabulary.get(lemma)
-                    out_filenames.append(filename)
-                    output_text += lemma.split("_")[0] + " "
-                    annotated_args.append(" " + word + " ")
-                    similarity_word = None
-                    break
-                    
+                
                 if iterated_word in not_in_model:
                     continue
 
@@ -93,7 +93,7 @@ class Translater:
             if similarity_word:
                 filename = vocabulary.get(similarity_word)
                 out_filenames.append(filename)
-                output_text += lemma.split("_")[0] + " "
+                output_text += similarity_word.split("_")[0] + " "
                 annotated_args.append((word, similarity_word.split("_")[0] + " " + str(round(similarity_max, 2))))
 
         st.session_state.text_output = output_text
