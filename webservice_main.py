@@ -49,10 +49,14 @@ class Translater:
         self.morph = morph
         self.the_keep_stopwords = the_keep_stopwords
 
-    def calc(self, input_text):
+    def new_calculation(self, input_text):
         input_filtered = []
         output_lemma = []
         output_similarity = []
+        annotated_args = []
+
+        IS_STOPWORD = "stopword"
+        IS_FOUND = "found"
 
         for word in Tokenization(Preprocessing(DataCleaning(input_text))):
             code, lemma = Lemmatization(self.morph, word, keep_pos=True, convert_upos=True, 
@@ -64,7 +68,8 @@ class Translater:
             if stopword_filename:
                 input_filtered.append(word)
                 output_lemma.append(lemma)
-                output_similarity.append("stopword")
+                output_similarity.append(IS_STOPWORD)
+                annotated_args.append(" " + word + " ")
                 continue
             
             similarity_max = 0
@@ -74,7 +79,8 @@ class Translater:
                     #filename = vocabulary.get(lemma)
                     input_filtered.append(word)
                     output_lemma.append(lemma)
-                    output_similarity.append("found")
+                    output_similarity.append(IS_FOUND)
+                    annotated_args.append(" " + word + " ")
                     similarity_word = None
                     break
                     
@@ -92,13 +98,20 @@ class Translater:
                 input_filtered.append(word)
                 output_lemma.append(similarity_word)
                 output_similarity.append(similarity_max)
+                annotated_args.append((word, similarity_word + " " + str(similarity_max)))
 
         st.session_state.text_output = " ".join(list(map(lambda x: x.split("_")[0], output_lemma)))
-        return st.session_state.text_output
+        st.session_state.annotations = annotated_args
+        return None
 
     def get_output(self):
         if "text_output" in st.session_state:
             return st.session_state.text_output
+        return None
+
+    def get_annotations(self):
+        if "annotations" in st.session_state:
+            return st.session_state.annotations
         return None
 
 translater = Translater()
@@ -128,24 +141,15 @@ annotations = st.empty()
 button_translate = st.button('Перевести')
 if button_translate:
     
-    output_text = translater.calc(text_input)
+    translater.new_calculation(text_input)
+    output_text = translater.get_output()
     if output_text:
         text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA)
-        annotations = annotated_text(
-    "This ",
-    ("is", "сущ"),
-    " some ",
-    ("annotated", "прил"),
-    ("text", "глагол"),
-    " for those of ",
-    ("you", "pronoun"),
-    " who ",
-    ("like", "verb"),
-    " this sort of ",
-    ("thing", "noun"),
-    "."
-)
-        st.write("\n")    
+        st.write("\n")
+    annots = translater.get_annotations()
+    if annots:
+        annotations = annotated_text(annots)
+        st.write("\n")
 else:
     st.write('Нажмите перевести')
 
@@ -156,21 +160,11 @@ if button_video:
     output_text = translater.get_output()
     if output_text:
         text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA)
-        annotations = annotated_text(
-    "This ",
-    ("is", "сущ"),
-    " some ",
-    ("annotated", "прил"),
-    ("text", "глагол"),
-    " for those of ",
-    ("you", "pronoun"),
-    " who ",
-    ("like", "verb"),
-    " this sort of ",
-    ("thing", "noun"),
-    "."
-)
-        st.write("\n")  
+        st.write("\n")
+    annots = translater.get_annotations()
+    if annots:
+        annotations = annotated_text(annots)
+        st.write("\n")
 
     if text:
 
