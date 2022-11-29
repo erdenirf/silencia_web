@@ -4,3 +4,4 @@ gensim
 pymorphy2
 moviepy
 htbuilder
+wget
