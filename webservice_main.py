@@ -16,13 +16,17 @@ import wget
 import os
 
 # Загрузить словарь
-with open('vocabulary.json', "r", encoding='utf-8') as f:
+
+delim = "/"
+local_path = delim.join(sys.argv[0].split(delim)[:-1])+delim
+
+with open(local_path + 'vocabulary.json', "r", encoding='utf-8') as f:
     vocabulary = json.loads(f.read())
     
-with open('stopwords.json', "r", encoding='utf-8') as f:
+with open(local_path + 'stopwords.json', "r", encoding='utf-8') as f:
     stopwords_drops = json.loads(f.read())
     
-with open('vocabulary_not_in_model.json', "r", encoding='utf-8') as f:
+with open(local_path + 'vocabulary_not_in_model.json', "r", encoding='utf-8') as f:
     not_in_model = json.loads(f.read())
 
 morph = pymorphy2.MorphAnalyzer()
