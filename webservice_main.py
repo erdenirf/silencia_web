@@ -136,19 +136,19 @@ if button_video:
 
     if text:
 
-        #cap = cv2.VideoCapture('Source/абрикос.mp4')
-        #while cap.isOpened():
-        #    ret, frame = cap.read()
-        #    if not ret:
-        #        break
-        #cap.release()
+        cap = cv2.VideoCapture('Source/абрикос.mp4')
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+        cap.release()
 
 
         #clips = [VideoFileClip(c) for c in ['Source/абрикос.mp4', 'Source/приветствие.mp4', 'Source/абажур.mp4']]
         #final_clip = concatenate_videoclips(clips)
         #final_clip.write_videofile("final.mp4")
-        video_file3 = open('Source/абрикос.mp4', 'rb')
-        video_bytes3 = video_file3.read()
-        st.video(video_bytes3, format="video/mp4")
+        #video_file3 = open('Source/абрикос.mp4', 'rb')
+        #video_bytes3 = video_file3.read()
+        #st.video(video_bytes3, format="video/mp4")
     else:
         st.write('Для запуска видео, сначала нажмите кнопку "Перевести"')
