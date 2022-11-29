@@ -14,7 +14,6 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
 import wget
 import os
-import cv2
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
