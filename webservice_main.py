@@ -32,8 +32,8 @@ model_url = 'http://vectors.nlpl.eu/repository/11/180.zip'
 m = wget.download(model_url)
 model_file = model_url.split('/')[-1]
 with zipfile.ZipFile(model_file, 'r') as archive:
-    stream = archive.open('model.bin', 'b')
-    model = gensim.models.KeyedVectors.load_word2vec_format(stream, binary=True)
+    with archive.open("model.bin") as stream:
+        model = gensim.models.KeyedVectors.load_word2vec_format(stream.read(), binary=True)
 
 
 # Webservice BEGIN
