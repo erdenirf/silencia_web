@@ -18,6 +18,8 @@ import cv2
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
+import av
+import io
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
@@ -96,8 +98,19 @@ class cv2_VideoCapture_from_list:
         return self.names[self.current_index]
 
 
-def videofiles_to_one(filenames: list, output_filename: str):
+def videofiles_to_one(filenames: list):
     
+    width, height, fps = 320, 280, 25  # Select video resolution and framerate.
+    output_memory_file = io.BytesIO()  # Create BytesIO "in memory file".
+    output = av.open(output_memory_file, 'w', format="mp4")  # Open "in memory file" as MP4 video output
+    stream = output.add_stream('h264', str(fps))  # Add H.264 video stream to the MP4 container, with framerate = fps.
+    stream.width = width  # Set frame width
+    stream.height = height  # Set frame height
+    #stream.pix_fmt = 'yuv444p'   # Select yuv444p pixel format (better quality than default yuv420p).
+    stream.pix_fmt = 'yuv420p'   # Select yuv420p pixel format for wider compatibility.
+    stream.options = {'crf': '17'}  # Select low crf for high quality (the price is larger file size).
+
+
     def PutText(frame, word):
         font                   = cv2.FONT_HERSHEY_COMPLEX
         bottomLeftCornerOfText = (70,265)
@@ -109,10 +122,6 @@ def videofiles_to_one(filenames: list, output_filename: str):
 
     background = cv2.imread( 'background.jpg' , cv2.IMREAD_UNCHANGED)
     cap = cv2_VideoCapture_from_list(filenames)
-
-    #writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'X264'), 30, (320,280))
-    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'X264'), 30, (320,280))
-    #writer = cv2.VideoWriter(output_filename, 0x7634706d, 30, (320,280))
 
     ## Setup mediapipe instance
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -140,15 +149,20 @@ def videofiles_to_one(filenames: list, output_filename: str):
 
             comb = np.concatenate((image,background),axis=0)
             PutText(comb, cap.name)
-            writer.write(comb)
-            
-            #cv2.imshow('Deaf Avatar', comb)
-            #if cv2.waitKey(1) & 0xFF == 27:
-            #    break
+
+            avframe = av.VideoFrame.from_ndarray(comb, format='bgr24')  # Convert image from NumPy Array to frame.
+            packet = stream.encode(avframe)  # Encode video frame
+            output.mux(packet)  # "Mux" the encoded frame (add the encoded frame to MP4 file).
 
         cap.release()
-        writer.release()
         cv2.destroyAllWindows()
+
+        packet = stream.encode(None)
+        output.mux(packet)
+        output.close()
+        output_memory_file.seek(0)  # Seek to the beginning of the BytesIO.
+
+    return output_memory_file
 
 
 # Webservice BEGIN
@@ -298,21 +312,8 @@ if button_video:
         start = time.time()
         with st.spinner('Генерируем результирующее видео жестов...'):
             try:
-                #clips = [VideoFileClip(c) for c in videofiles_list]
-                #final_clip = concatenate_videoclips(clips)
-
-                temp = tempfile.NamedTemporaryFile(delete=False)
-                try:
-                    name_temp = temp.name + ".mp4"
-                finally:
-                    temp.close()
-                    #final_clip.write_videofile(name_temp, codec='libx264')
-
-                    videofiles_to_one(videofiles_list, name_temp)
-                    
-                    video_file3 = open(name_temp, 'rb')
-                    video_bytes3 = video_file3.read()
-                st.video(video_bytes3, format="video/mp4")
+                memory_mp4 = videofiles_to_one(videofiles_list)
+                st.video(memory_mp4)
             except Exception as error:
                 successable = False
                 st.error(error)
