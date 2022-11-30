@@ -100,7 +100,7 @@ class cv2_VideoCapture_from_list:
 
 def videofiles_to_one(filenames: list):
     
-    width, height, fps = 320, 280, 25  # Select video resolution and framerate.
+    width, height, fps = 320, 280, 50  # Select video resolution and framerate.
     output_memory_file = io.BytesIO()  # Create BytesIO "in memory file".
     output = av.open(output_memory_file, 'w', format="mp4")  # Open "in memory file" as MP4 video output
     stream = output.add_stream('h264', str(fps))  # Add H.264 video stream to the MP4 container, with framerate = fps.
@@ -113,7 +113,7 @@ def videofiles_to_one(filenames: list):
 
     def PutText(frame, word):
         font                   = cv2.FONT_HERSHEY_COMPLEX
-        bottomLeftCornerOfText = (70,265)
+        bottomLeftCornerOfText = (20,265)
         fontScale              = 1
         fontColor              = (255,0,0)
         thickness              = 1
@@ -177,9 +177,6 @@ class Translater:
         out_filenames = []
         output_text = ""
         annotated_args = []
-
-        IS_STOPWORD = "stopword"
-        IS_FOUND = "found"
 
         for word in Tokenization(Preprocessing(DataCleaning(input_text))):
             code, lemma = Lemmatization(self.morph, word, keep_pos=True, convert_upos=True, 
@@ -269,7 +266,7 @@ if button_translate:
     
     successable = True
     start = time.time()
-    with st.spinner('Вычисляем матрицы векторов...'):
+    with st.spinner('Вычисляем матрицы векторов нейросети...'):
         try:
             translater.new_calculation(text_input)
         except Exception as error:
@@ -277,7 +274,7 @@ if button_translate:
             st.error(error)
     end = time.time()
     if successable:
-        st.success('Синонимы найдены успешно. Время: {} сек.'.format(round(end - start, 3)))
+        st.success('Подобные слова найдены успешно. Время: {} сек.'.format(round(end - start, 3)))
 
     output_text = translater.get_output()
     if output_text:
@@ -310,7 +307,7 @@ if button_video:
 
         successable = True
         start = time.time()
-        with st.spinner('Генерируем результирующее видео жестов...'):
+        with st.spinner('Генерируем итоговое видео жестов...'):
             try:
                 memory_mp4 = videofiles_to_one(videofiles_list)
                 st.video(memory_mp4)
