@@ -130,12 +130,6 @@ div.stButton > button:first-child {
     background-color: #0099ff;
     color:#ffffff;
 }
-.stTextArea [data-baseweb=base-input] [disabled=""]{
-    -webkit-text-fill-color: black;
-    }
-label {
-    -webkit-text-fill-color: black;
-}
 </style>""", unsafe_allow_html=True)
 
 text_input = st.text_area(INPUT_LABEL, "", height=HEIGHT_TEXTAREA)
