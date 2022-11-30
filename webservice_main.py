@@ -195,10 +195,10 @@ if button_video:
 
                 temp = tempfile.NamedTemporaryFile(delete=False)
                 try:
-                    name_temp = temp.name
+                    name_temp = temp.name + ".mp4"
                 finally:
                     temp.close()
-                    final_clip.write_videofile(name_temp)
+                    final_clip.write_videofile(name_temp, codec='libx264')
                     video_file3 = open(name_temp, 'rb')
                     video_bytes3 = video_file3.read()
                 st.video(video_bytes3, format="video/mp4")
