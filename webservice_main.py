@@ -11,6 +11,7 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
 import wget
 import os
+import time
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
@@ -143,13 +144,23 @@ annotations = st.empty()
 button_translate = st.button('Перевести')
 if button_translate:
     
+    successable = True
+    start = time.time()
     with st.spinner('Вычисляем матрицы векторов...'):
-        translater.new_calculation(text_input)
-    st.success('Синонимы найдены успешно.')
+        try:
+            translater.new_calculation(text_input)
+        except Exception as error:
+            successable = False
+            st.error(error)
+    end = time.time()
+    if successable:
+        st.success('Синонимы найдены успешно. Время: {} сек.'.format(round(end - start, 3)))
+
     output_text = translater.get_output()
     if output_text:
         text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA)
         st.write("\n")
+
     annots = translater.get_annotations()
     if annots:
         annotations = annotated_text(*annots)
@@ -165,18 +176,30 @@ if button_video:
     if output_text:
         text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA)
         st.write("\n")
+
     annots = translater.get_annotations()
     if annots:
         annotations = annotated_text(*annots)
         st.write("\n")
 
-    if text:
+    videofiles_list = translater.get_filenames()
+    if videofiles_list:
 
-        #clips = [VideoFileClip(c) for c in ['адрес.mp4']]
-        #final_clip = concatenate_videoclips(clips)
-        #final_clip.write_videofile("final.mp4")
-        video_file3 = open('адрес.mp4', 'rb')
-        video_bytes3 = video_file3.read()
-        st.video(video_bytes3, format="video/mp4")
+        successable = True
+        start = time.time()
+        with st.spinner('Генерируем результирующее видео жестов...'):
+            try:
+                clips = [VideoFileClip(c) for c in videofiles_list]
+                final_clip = concatenate_videoclips(clips)
+                final_clip.write_videofile("final.mp4")
+                video_file3 = open("final.mp4", 'rb')
+                video_bytes3 = video_file3.read()
+                st.video(video_bytes3, format="video/mp4")
+            except Exception as error:
+                successable = False
+                st.error(error)
+        end = time.time()
+        if successable:
+            st.success('Видеофайл сгенерирован успешно. Время: {} сек.'.format(round(end - start, 3)))
     else:
         st.write('Для запуска видео, сначала нажмите кнопку "Перевести"')
