@@ -1,4 +1,4 @@
-opencv-python-headless
+opencv-contrib-python
 mediapipe
 smart-open
 scipy
