@@ -197,7 +197,8 @@ if button_video:
                 st.video(video_bytes3, format="video/mp4")
             except Exception as error:
                 successable = False
-                st.error(error)
+                end = time.time()
+                st.error(error, "Время: {} сек.".format(round(end - start, 3)))
         end = time.time()
         if successable:
             st.success('Видеофайл сгенерирован успешно. Время: {} сек.'.format(round(end - start, 3)))
