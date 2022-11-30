@@ -12,6 +12,7 @@ from annotated_text import annotated_text
 import wget
 import os
 import time
+import tempfile
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
@@ -191,9 +192,15 @@ if button_video:
             try:
                 clips = [VideoFileClip(c) for c in videofiles_list]
                 final_clip = concatenate_videoclips(clips)
-                final_clip.write_videofile("final.mp4")
-                video_file3 = open("final.mp4", 'rb')
-                video_bytes3 = video_file3.read()
+
+                temp = tempfile.NamedTemporaryFile(delete=False)
+                try:
+                    name_temp = temp.name
+                finally:
+                    temp.close()
+                    final_clip.write_videofile(name_temp)
+                    video_file3 = open(name_temp, 'rb')
+                    video_bytes3 = video_file3.read()
                 st.video(video_bytes3, format="video/mp4")
             except Exception as error:
                 successable = False
