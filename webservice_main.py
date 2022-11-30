@@ -110,7 +110,7 @@ def videofiles_to_one(filenames: list, output_filename: str):
     background = cv2.imread( 'background.jpg' , cv2.IMREAD_UNCHANGED)
     cap = cv2_VideoCapture_from_list(filenames)
 
-    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'AVC1'), 30, (320,280))
+    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'XVID'), 30, (320,280))
     #writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'MP4V'), 30, (320,280))
     #writer = cv2.VideoWriter(output_filename, 0x7634706d, 30, (320,280))
 
@@ -303,7 +303,7 @@ if button_video:
 
                 temp = tempfile.NamedTemporaryFile(delete=False)
                 try:
-                    name_temp = temp.name + ".mp4"
+                    name_temp = temp.name + ".avi"
                 finally:
                     temp.close()
                     #final_clip.write_videofile(name_temp, codec='libx264')
