@@ -110,7 +110,8 @@ def videofiles_to_one(filenames: list, output_filename: str):
     background = cv2.imread( 'background.jpg' , cv2.IMREAD_UNCHANGED)
     cap = cv2_VideoCapture_from_list(filenames)
 
-    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'H264'), 30, (320,280))
+    #writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'H264'), 30, (320,280))
+    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'MP4V'), 30, (320,280))
 
     ## Setup mediapipe instance
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
