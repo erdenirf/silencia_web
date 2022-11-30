@@ -7,17 +7,12 @@ from zipfile import ZipFile
 import pymorphy2
 import json
 import streamlit as st
-#from moviepy.editor import VideoFileClip, concatenate_videoclips
+from moviepy.editor import VideoFileClip, concatenate_videoclips
 from annotated_text import annotated_text
 import wget
 import os
 import time
 import tempfile
-import numpy as np
-import cv2
-import mediapipe as mp
-mp_drawing = mp.solutions.drawing_utils
-mp_pose = mp.solutions.pose
 
 # Загрузить словарь
 with open('vocabulary.json', "r", encoding='utf-8') as f:
@@ -46,107 +41,6 @@ if not folder_exists:
     zf.extractall(folder_name)
     zf.close()
 model = gensim.models.KeyedVectors.load_word2vec_format("220/model.bin", binary=True)
-
-# mediapipe
-
-class cv2_VideoCapture_from_list:
-    
-    def __init__(self, filenames: list):
-        
-        self.array = filenames.copy()
-        self.current_index = 0
-        self.capture = cv2.VideoCapture(self.array[self.current_index])
-        self.names = list(map(lambda x: x.split(".")[0], filenames.copy()))
-                
-    def isOpened(self):
-        if self.current_index >= len(self.array):
-            return False
-        return self.capture.isOpened()
-    
-    def get(self, constant):
-        if self.current_index >= len(self.array):
-            return False
-        return self.capture.get(constant)
-    
-    def set(self, constant, value):
-        if self.current_index >= len(self.array):
-            return False
-        return self.capture.set(constant, value)
-    
-    def read(self):
-        if self.current_index >= len(self.array):
-            return False, None
-        ret, frame = self.capture.read()
-        if not ret:
-            if self.current_index+1 < len(self.array):
-                self.current_index += 1
-                self.capture = cv2.VideoCapture(self.array[self.current_index])
-                ret, frame = self.capture.read()
-            else:
-                False, None
-        return ret, frame
-    
-    def release(self):
-        self.capture.release()
-        
-    @property
-    def name(self):
-        if self.current_index >= len(self.array):
-            return ""
-        return self.names[self.current_index]
-
-
-def videofiles_to_one(filenames: list, output_filename: str):
-    
-    def PutText(frame, word):
-        font                   = cv2.FONT_HERSHEY_COMPLEX
-        bottomLeftCornerOfText = (70,265)
-        fontScale              = 1
-        fontColor              = (255,0,0)
-        thickness              = 1
-        lineType               = 1
-        cv2.putText(frame,word, bottomLeftCornerOfText, font, fontScale,fontColor,thickness,lineType)
-
-    background = cv2.imread( 'background.jpg' , cv2.IMREAD_UNCHANGED)
-    cap = cv2_VideoCapture_from_list(filenames)
-
-    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'H264'), 30, (320,280))
-
-    ## Setup mediapipe instance
-    with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-            # Recolor image to RGB
-            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image.flags.writeable = False
-
-            # Make detection
-            results = pose.process(image)
-
-            # Recolor back to BGR
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
-            # Render detections
-            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-                                    mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2), 
-                                    mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2) 
-                                     )               
-
-            comb = np.concatenate((image,background),axis=0)
-            PutText(comb, cap.name)
-            writer.write(comb)
-            
-            #cv2.imshow('Deaf Avatar', comb)
-            #if cv2.waitKey(1) & 0xFF == 27:
-            #    break
-
-        cap.release()
-        writer.release()
-        cv2.destroyAllWindows()
 
 
 # Webservice BEGIN
@@ -296,18 +190,15 @@ if button_video:
         start = time.time()
         with st.spinner('Генерируем результирующее видео жестов...'):
             try:
-                #clips = [VideoFileClip(c) for c in videofiles_list]
-                #final_clip = concatenate_videoclips(clips)
+                clips = [VideoFileClip(c) for c in videofiles_list]
+                final_clip = concatenate_videoclips(clips)
 
                 temp = tempfile.NamedTemporaryFile(delete=False)
                 try:
                     name_temp = temp.name + ".mp4"
                 finally:
                     temp.close()
-                    #final_clip.write_videofile(name_temp, codec='libx264')
-
-                    videofiles_to_one(videofiles_list, name_temp)
-                    
+                    final_clip.write_videofile(name_temp, codec='libx264')
                     video_file3 = open(name_temp, 'rb')
                     video_bytes3 = video_file3.read()
                 st.video(video_bytes3, format="video/mp4")
