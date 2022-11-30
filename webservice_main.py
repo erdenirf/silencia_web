@@ -136,7 +136,7 @@ text_input = st.text_area(INPUT_LABEL, "", height=HEIGHT_TEXTAREA)
 
 text_area = st.empty()
 
-text = text_area.text_area(OUTPUT_LABEL, "", height=HEIGHT_TEXTAREA)
+text = text_area.text_area(OUTPUT_LABEL, "", height=HEIGHT_TEXTAREA, disabled=True)
 
 annotations = st.empty()
 
@@ -158,7 +158,7 @@ if button_translate:
 
     output_text = translater.get_output()
     if output_text:
-        text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA)
+        text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA, disabled=True)
         st.write("\n")
 
     annots = translater.get_annotations()
@@ -174,7 +174,7 @@ if button_video:
 
     output_text = translater.get_output()
     if output_text:
-        text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA)
+        text = text_area.text_area(OUTPUT_LABEL, output_text, height=HEIGHT_TEXTAREA, disabled=True)
         st.write("\n")
 
     annots = translater.get_annotations()
